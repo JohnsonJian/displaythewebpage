@@ -1,0 +1,49 @@
+BOOL CTabDialog::WorkerThreadProc()
+{
+  //CCallback callback;
+	//HRESULT   hr;
+
+	CInternetSession mySession(NULL,0);
+	CHttpFile* myHttpFile=NULL;
+	CString myData;
+	myHttpFile=(CHttpFile*)mySession.OpenURL(m_sURLNumber);
+
+	while(myHttpFile->ReadString(myData))
+	{
+	//sMessage=sMessage+"\r\n";
+	mUrlMessage+=myData;
+	}
+
+
+        char *pchIn=(char *)(mUrlMessage.GetBuffer(mUrlMessage.GetLength()));
+    WCHAR *ptch;
+    int nLen = MultiByteToWideChar(CP_ACP, 0, pchIn, -1, NULL, 0);
+    ptch = new WCHAR[nLen];
+    MultiByteToWideChar(CP_ACP, 0, pchIn, -1, ptch, nLen);
+    mUrlMessage.Format(_T("%s"), ptch);
+    
+    delete []ptch;
+
+	 
+     
+		int potsition=mUrlMessage.Find(_T("dato"));
+		if(potsition>0)
+		{
+		    mNumber = mUrlMessage.Mid(potsition+6,10);
+		}
+		else
+		{
+		     mNumber=_T("0000000000");
+		}
+               //JHS 20130329 add end
+		GetDlgItem(IDC_NUMBER_DISPLAY)->SetWindowText(mNumber);
+		//Invalidate();
+
+	myHttpFile->Close ;
+	mySession.Close ;
+
+        return TRUE;
+    
+    // At this point, the thread's about to end, so re-enable the dialog
+    // controls.
+}
